@@ -14,20 +14,20 @@ const SelectedMapLevels = () => {
           cuantityLevels: Array.from({ length: 31 }, (_, i) => ({
             text: (i + 1).toString(),
             isBlocked: i !== 0,
-            starsComplete: i !== 0 ? 0 : 1 
-          }))
+            starsComplete: 0,
+            dificulty:(i>=0 && i<=15)?"easy":(i>=16 && i <=25)?"medium":"hard",
+          })),
+          operationType:"suma"
         },
         {
           idMap: 1,
           cuantityLevels: Array.from({ length: 31 }, (_, i) => ({
             text: (i + 1).toString(),
             isBlocked: i !== 0,
-            starsComplete:
-              i === 0 ? 1 :
-              i === 1 ? 2 :
-              i === 2 ? 3 :
-              0 
-          }))
+            starsComplete:0,
+            dificulty:(i>=0 && i<=15)?"easy":(i>=16 && i <=25)?"medium":"hard",
+          })),
+          operationType:"resta"
         }
       ];
     const router = useRouter();
@@ -81,9 +81,15 @@ const SelectedMapLevels = () => {
             {levelsMaps.find(map => map.idMap === parseInt(idMap))?.cuantityLevels.map((level, index) =>{
                 if(index >= limitedLevels && index <= limitedLevels + 11){
                     return(
-                        <View style={{height:'12%',width:'30%',marginLeft:'2%',marginTop:'15%'}}>
+                        <TouchableOpacity key={index} style={{height:'12%',width:'30%',marginLeft:'2%',marginTop:'15%'}} 
+                          onPress={()=>{
+                            router.push({
+                              pathname: "/(main)/levels/map/battle",
+                              params: { levels: JSON.stringify(level), operation:levelsMaps.find(map=> map.idMap === parseInt(idMap))?.operationType,idMap:idMap }
+                            });
+                          }}>
                             <LevelSquare nameLevel={level.text} isBlocked={level.isBlocked} starsComplete={level.starsComplete} />
-                        </View>
+                        </TouchableOpacity>
                         )    
                 }
             })}

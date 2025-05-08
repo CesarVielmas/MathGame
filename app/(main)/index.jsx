@@ -24,6 +24,7 @@ import ButtonGameGeneric from '../../components/ui/ButtonGameGeneric';
 import IconSelect from '../../components/svg_icons/IconSelect';
 import IconTranslate from '../../components/svg_icons/IconTranslate';
 import IconEdit from '../../components/svg_icons/IconEdit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('screen');
 
@@ -274,6 +275,18 @@ export default function PrincipalViewGame() {
       setTextInScreen((prevTextInScreen) => [...prevTextInScreen, itemScreen]);
   }
   const loadingAll = async ()=>{
+    const musicAsync = await AsyncStorage.getItem('volumeMusic')
+    const soundAsync = await AsyncStorage.getItem('volumeSound')
+    const userNameAsync = await AsyncStorage.getItem('username')
+    const userPhotoAsync = await AsyncStorage.getItem('userphoto_index')
+    const languageAsync = await AsyncStorage.getItem('language');
+    if (userNameAsync !== null) setProfileName(userNameAsync);
+    if (userPhotoAsync !== null) setProfilePhoto(parseInt(userPhotoAsync));
+    setSettingsVariables({
+      music: musicAsync !== null ? parseInt(musicAsync) : 100,
+      sound: soundAsync !== null ? parseInt(soundAsync) : 100
+    });   
+    if (languageAsync !== null) changeLanguage(languageAsync); 
     setIconsSettings(iconsSettingsBase);
     for (let i = 0; i < numberOfText; i++) {
       addTextFalling();
@@ -312,6 +325,7 @@ export default function PrincipalViewGame() {
           ...prevState,
           music: Math.round(mappedValue)  
         }));
+        await AsyncStorage.setItem('volumeMusic',`${Math.round(mappedValue)}`);
         if(musicBackgroundRef.current !== null){
           setMusicBackground((prevMusicBackground)=>{
             prevMusicBackground.setVolumeAsync(Math.round(mappedValue) * 0.01);
@@ -327,7 +341,7 @@ export default function PrincipalViewGame() {
   const panResponderSound = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (e, gestureState) => {
+      onPanResponderMove: async (e, gestureState) => {
         const moveX = gestureState.moveX;
         const percentage = Math.min(Math.max((moveX / screenWidth) * 100, 0), 100);
         const minPorcentaje = 27;  
@@ -337,7 +351,7 @@ export default function PrincipalViewGame() {
           ...prevState,
           sound: Math.round(mappedValue)  
         }));
-
+        await AsyncStorage.setItem('volumeSound',`${Math.round(mappedValue)}`);
       },
       onPanResponderRelease: async () => {
         const url = require('../../assets/sounds/button_click.wav')
@@ -416,6 +430,14 @@ export default function PrincipalViewGame() {
       props: { SvgChildIcon : IconSettingsPrincipalView,backgroundButton : "#515151",borderRadiusButton:"50%",colorIcon : "#ffffff",sizeIcon : 30,sizeButton : 40,animationOptions : {styleChange: styleChangeAnimationSettings , functionAnimation:animationFunctionSettings} }
     }
   ];
+  const handleChangeProfileName = async (newName) => {
+    setProfileName(newName);
+    try {
+      await AsyncStorage.setItem('username', newName);
+    } catch (error) {
+      console.error('Error al guardar el nombre:', error);
+    }
+  };
   //Loading
   useEffect(() => {
     if (fontsLoaded) 
@@ -449,7 +471,7 @@ export default function PrincipalViewGame() {
                   <WindowDialogApart styleOptionsDialog={stylesSecondDialogEditImage} listAparts={[{tittle: t("textTittleSecondDialogChangeImage"),functionContentChange:()=>{}}]}  functionExit={()=>setOpenSecondDialog({state:false,type:0})}>
                     <View style={{display:'flex',height:'75%',width:'95%',marginLeft:'auto',marginRight:'auto',flexWrap:'wrap',flexDirection:'row',justifyContent:'space-between',marginTop:'4%'}}>
                         {imagesAvatarProfile.map((image,index)=>(
-                          <TouchableOpacity style={{height:'50%',width:'46%',justifyContent:'center',borderRadius:'50%',margin:'1vw'}} onPress={()=>{setProfilePhoto(index);setOpenSecondDialog({state:false,type:0})}}>
+                          <TouchableOpacity style={{height:'50%',width:'46%',justifyContent:'center',borderRadius:'50%',margin:'1vw'}} onPress={async ()=>{setProfilePhoto(index);await AsyncStorage.setItem('userphoto_index', `${index}`);setOpenSecondDialog({state:false,type:0})}}>
                             <Image key={index} source={image.source} style={{height:'100%',width:'100%',justifyContent:'center',borderRadius:'50%'}} resizeMode='stretch' />
                           </TouchableOpacity>
                         ))}
@@ -461,7 +483,7 @@ export default function PrincipalViewGame() {
                 <View style={{position:'fixed',top:0,left:0,height:'100vh',width:'100vw',zIndex:2}}>
                   <WindowDialogApart styleOptionsDialog={stylesSecondDialogEditName} listAparts={[{tittle: t("textTittleSecondDialogChangeName"),functionContentChange:()=>{}}]}  functionExit={()=>setOpenSecondDialog({state:false,type:0})}>
                     <Text style={[styles.tittleTextApart,{fontSize:'3vh'}]}>{t("textTittleSecondDialogName")}</Text>
-                    <TextInput style={styles.inputTextNameChangeStyle} placeholder={t("textPlaceholderDialogChangeName")} value={profileName} onChangeText={setProfileName} />
+                    <TextInput style={styles.inputTextNameChangeStyle} placeholder={t("textPlaceholderDialogChangeName")} value={profileName} onChangeText={handleChangeProfileName} />
                     <TouchableOpacity style={{height:'20%',width:'40%',marginLeft:'auto',marginRight:'auto',marginTop:'4%'}}>
                       <ButtonGameGeneric colorButton={"white"} backgroundButton={"#187c28"} textButton={t("acceptButton")} borderRadius={"2vw"} actionClick={()=>setOpenSecondDialog({state:false,type:0})} />
                     </TouchableOpacity>
@@ -523,13 +545,13 @@ export default function PrincipalViewGame() {
                 </View>
                 <Text style={styles.tittleTextApart}>{t("listApartsTittle_one_text_two")}</Text>
                 <View style={styles.translateFlexBox}>
-                    <TouchableOpacity style={{flex:1,width:'100%',height:'100%',justifyContent:'center',marginRight:'3%'}} onPress={()=> {changeLanguage('es');loadLanguage();}}>
+                    <TouchableOpacity style={{flex:1,width:'100%',height:'100%',justifyContent:'center',marginRight:'3%'}} onPress={async ()=> {changeLanguage('es');loadLanguage(); await AsyncStorage.setItem('language','es');}}>
                       <Image source={require('../../assets/images/spanish_language_change.jpg')} style={{width:'100%',height:'70%'}} resizeMode='stretch' />
                       <View style={{marginLeft:'auto',marginRight:'auto'}}>
                         <IconButtonSvg SvgChildIcon = {language === 'es'?IconSelect:IconTranslate} backgroundButton = {"transparent"} borderRadiusButton={"50%"} colorIcon= {language === 'es'?"#bdffbe":"#da5252"} sizeIcon = {10} sizeButton = {20} />  
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{flex:1,width:'100%',height:'100%',justifyContent:'center'}} onPress={()=> {changeLanguage('en'); loadLanguage();}}>
+                    <TouchableOpacity style={{flex:1,width:'100%',height:'100%',justifyContent:'center'}} onPress={async ()=> {changeLanguage('en'); loadLanguage(); await AsyncStorage.setItem('language','en');}}>
                       <Image source={require('../../assets/images/english_language_change.png')} style={{width:'100%',height:'70%'}} resizeMode='stretch' />
                       <View style={{marginLeft:'auto',marginRight:'auto'}}>
                         <IconButtonSvg SvgChildIcon = {language === 'en'?IconSelect:IconTranslate} backgroundButton = {"transparent"} borderRadiusButton={"50%"} colorIcon= {language === 'en'?"#bdffbe":"#da5252"} sizeIcon = {10} sizeButton = {20} />  

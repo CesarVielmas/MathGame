@@ -21,168 +21,15 @@ import CenterIconCircle from "../../../components/ui/CenterIconCircle";
 import { Audio } from "expo-av";
 import WindowDialogApart from "../../../components/ui/WindowDialogAparts";
 import ButtonGameGeneric from "../../../components/ui/ButtonGameGeneric";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const money = 1500;
-const stars = 35;
-
 const LevelsViewGame = () => {
     const {t} = useLanguage();
-    const listCharacters = [
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:false,
-            costUnlock:500,
-        },
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:false,
-            costUnlock:500,
-        },
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:false,
-            costUnlock:500,
-        },
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:true,
-            costUnlock:500,
-        },
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:false,
-            costUnlock:500,
-        },
-        {
-            nameCharacter:"Winston Luna",
-            source:require("../../../assets/images/winston_luna.png"),
-            isBlocking:true,
-            costUnlock:1500,
-        }
-    ]
-    const listMaps = [
-        {
-            iconMap:require("../../../assets/images/icon_map_1.png"),
-            nameMap:t("homeApartGame_two_map_one"),
-            colorMapWeak:"#adface",
-            colorMapMedium:"#2bbb68",
-            colorMapStrong:"#087135",
-            isBlocking:false
-        },
-        {
-            iconMap:require("../../../assets/images/icon_map_1.png"),
-            nameMap:t("homeApartGame_two_map_two"),
-            colorMapWeak:"#adface",
-            colorMapMedium:"#2bbb68",
-            colorMapStrong:"#087135",
-            isBlocking:true
-        },
-        {
-            iconMap:require("../../../assets/images/icon_map_1.png"),
-            nameMap:t("homeApartGame_two_map_tree"),
-            colorMapWeak:"#adface",
-            colorMapMedium:"#2bbb68",
-            colorMapStrong:"#087135",
-            isBlocking:true
-        },
-        {
-            iconMap:require("../../../assets/images/icon_map_1.png"),
-            nameMap:t("homeApartGame_two_map_forth"),
-            colorMapWeak:"#adface",
-            colorMapMedium:"#2bbb68",
-            colorMapStrong:"#087135",
-            isBlocking:true
-        }
-    ]
-    const listMusics = [
-        {
-            nameMusic:"Megaman X4 - Intro Stage",
-            music:require('../../../assets/musics/cover_music_1.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_1.jpg"),
-            isMusicBlocks:false,
-            costUnlock:10
-        },
-        {
-            nameMusic:"Megaman X4 - Frost Walrus",
-            music:require('../../../assets/musics/cover_music_2.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_2.jpg"),
-            isMusicBlocks:false,
-            costUnlock:10
     
-        },
-        {
-            nameMusic:"Sonic.exe - Dr.Eggman Stage",
-            music:require('../../../assets/musics/cover_music_3.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_3.jpg"),
-            isMusicBlocks:true,
-            costUnlock:30
-    
-        },
-        {
-            nameMusic:"Dimash Kudaibergen - Loves not over yet",
-            music:require('../../../assets/musics/cover_music_4.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_4.jpg"),
-            isMusicBlocks:true,
-            costUnlock:30
-    
-        },
-        {
-            nameMusic:"Sonic 1 - Spring Yard Zone",
-            music:require('../../../assets/musics/cover_music_5.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_5.jpg"),
-            isMusicBlocks:true,
-            costUnlock:60
-    
-        },
-        {
-            nameMusic:"TheFatRat - MAYDAY",
-            music:require('../../../assets/musics/cover_music_6.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_6.jpg"),
-            isMusicBlocks:true,
-            costUnlock:60
-    
-        },
-        {
-            nameMusic:"Chessmaster - HIT",
-            music:require('../../../assets/musics/cover_music_7.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_7.jpg"),
-            isMusicBlocks:true,
-            costUnlock:120
-        },
-        {
-            nameMusic:"Dimash Kudaibergen - My Swan",
-            music:require('../../../assets/musics/cover_music_8.mp3'),
-            colorBackgroundStrong:"#297a59",
-            colorBackgroundWeak:"#77e9bb",
-            imageMusic:require("../../../assets/images/cover_music_8.jpg"),
-            isMusicBlocks:true,
-            costUnlock:120
-        },
-    
-    ]
     const [apartNowGame,setApartNowGame] = useState(0);
     const [apartHomeSelect,setApartHomeSelect] = useState(0);
-    const [selectCharacter,setSelectCharacter] = useState(2);
+    const [selectCharacter,setSelectCharacter] = useState(0);
     const [selectMusic,setSelectMusic] = useState(1);
     const [selectPlayMusic,setSelectPlayMusic] = useState(-1);
     const [musicPlayingBackground,setMusicPlayingBackground] = useState(null);
@@ -190,11 +37,11 @@ const LevelsViewGame = () => {
     const [firstDialog,setFirstDialog] = useState({state:false,type:0});
     const [secondDialog,setSecondDialog] = useState({state:false,type:0});
     const [purchase,setPurchase] = useState({typePurchase:0,costPurchase:0,typeMoney:0,indexPurchase:0})
-    const [characters,setCharacters] = useState(listCharacters);
-    const [maps,setMaps] = useState(listMaps);
-    const [musics,setMusics] = useState(listMusics);
-    const [cuantityMoney,setCuantityMoney] = useState(money)
-    const [cuantityStars,setCuantityStars] = useState(stars)
+    const [characters,setCharacters] = useState([]);
+    const [maps,setMaps] = useState([]);
+    const [musics,setMusics] = useState([]);
+    const [cuantityMoney,setCuantityMoney] = useState(2000)
+    const [cuantityStars,setCuantityStars] = useState(200)
     const [animationKey, setAnimationKey] = useState(0); 
 
     const deltaRef = useRef(1); 
@@ -212,10 +59,216 @@ const LevelsViewGame = () => {
             toValue: 1,
             duration: 300,
             useNativeDriver: true,
-        }).start(() => {
-            setSelectCharacter(prev => prev + deltaRef.current);
+        }).start(async () => {
+            if(characters.length != 0){
+                setSelectCharacter(prev => prev + deltaRef.current);
+                if(!characters[selectCharacter + deltaRef.current].isBlocking)
+                    await AsyncStorage.setItem('selectedCharacter',`${selectCharacter + deltaRef.current}`);
+            } 
         });
     }, [animationKey]);
+    useEffect(()=>{
+        const loadPrincipalLevels = async() =>{
+            const listCharacters = [
+                {
+                    nameCharacter:"Cesar",
+                    source:require("../../../assets/images/character_1.png"),
+                    isBlocking:false,
+                    costUnlock:500,
+                },
+                {
+                    nameCharacter:"Manuel",
+                    source:require("../../../assets/images/character_2.png"),
+                    isBlocking:true,
+                    costUnlock:500,
+                },
+                {
+                    nameCharacter:"Luna",
+                    source:require("../../../assets/images/character_3.png"),
+                    isBlocking:true,
+                    costUnlock:500,
+                },
+                {
+                    nameCharacter:"Winston",
+                    source:require("../../../assets/images/character_4.png"),
+                    isBlocking:true,
+                    costUnlock:500,
+                },
+                {
+                    nameCharacter:"Javier",
+                    source:require("../../../assets/images/character_5.png"),
+                    isBlocking:true,
+                    costUnlock:500,
+                },
+                {
+                    nameCharacter:"Matias",
+                    source:require("../../../assets/images/character_6.png"),
+                    isBlocking:true,
+                    costUnlock:1500,
+                },
+                {
+                    nameCharacter:"Pancrasio",
+                    source:require("../../../assets/images/character_7.png"),
+                    isBlocking:true,
+                    costUnlock:1500,
+                },
+                {
+                    nameCharacter:"Roberto",
+                    source:require("../../../assets/images/character_8.png"),
+                    isBlocking:true,
+                    costUnlock:1500,
+                },
+                {
+                    nameCharacter:"Magdalena",
+                    source:require("../../../assets/images/character_9.png"),
+                    isBlocking:true,
+                    costUnlock:1500,
+                }
+            ]
+            const listMaps = [
+                {
+                    iconMap:require("../../../assets/images/icon_map_1.png"),
+                    nameMap:t("homeApartGame_two_map_one"),
+                    colorMapWeak:"#adface",
+                    colorMapMedium:"#2bbb68",
+                    colorMapStrong:"#087135",
+                    isBlocking:false
+                },
+                {
+                    iconMap:require("../../../assets/images/icon_map_1.png"),
+                    nameMap:t("homeApartGame_two_map_two"),
+                    colorMapWeak:"#adface",
+                    colorMapMedium:"#2bbb68",
+                    colorMapStrong:"#087135",
+                    isBlocking:true
+                },
+                {
+                    iconMap:require("../../../assets/images/icon_map_1.png"),
+                    nameMap:t("homeApartGame_two_map_tree"),
+                    colorMapWeak:"#adface",
+                    colorMapMedium:"#2bbb68",
+                    colorMapStrong:"#087135",
+                    isBlocking:true
+                },
+                {
+                    iconMap:require("../../../assets/images/icon_map_1.png"),
+                    nameMap:t("homeApartGame_two_map_forth"),
+                    colorMapWeak:"#adface",
+                    colorMapMedium:"#2bbb68",
+                    colorMapStrong:"#087135",
+                    isBlocking:true
+                }
+            ]
+            const listMusics = [
+                {
+                    nameMusic:"Megaman X4 - Intro Stage",
+                    music:require('../../../assets/musics/cover_music_1.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_1.jpg"),
+                    isMusicBlocks:false,
+                    costUnlock:10
+                },
+                {
+                    nameMusic:"Megaman X4 - Frost Walrus",
+                    music:require('../../../assets/musics/cover_music_2.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_2.jpg"),
+                    isMusicBlocks:false,
+                    costUnlock:10
+            
+                },
+                {
+                    nameMusic:"Sonic.exe - Dr.Eggman Stage",
+                    music:require('../../../assets/musics/cover_music_3.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_3.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:30
+            
+                },
+                {
+                    nameMusic:"Dimash Kudaibergen - Loves not over yet",
+                    music:require('../../../assets/musics/cover_music_4.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_4.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:30
+            
+                },
+                {
+                    nameMusic:"Sonic 1 - Spring Yard Zone",
+                    music:require('../../../assets/musics/cover_music_5.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_5.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:60
+            
+                },
+                {
+                    nameMusic:"TheFatRat - MAYDAY",
+                    music:require('../../../assets/musics/cover_music_6.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_6.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:60
+            
+                },
+                {
+                    nameMusic:"Chessmaster - HIT",
+                    music:require('../../../assets/musics/cover_music_7.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_7.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:120
+                },
+                {
+                    nameMusic:"Dimash Kudaibergen - My Swan",
+                    music:require('../../../assets/musics/cover_music_8.mp3'),
+                    colorBackgroundStrong:"#297a59",
+                    colorBackgroundWeak:"#77e9bb",
+                    imageMusic:require("../../../assets/images/cover_music_8.jpg"),
+                    isMusicBlocks:true,
+                    costUnlock:120
+                },
+            
+            ]
+            const listCharactersAsync = await AsyncStorage.getItem('listCharacters');
+            const listMapsAsync = await AsyncStorage.getItem('listMaps');
+            const listMusicsAsync = await AsyncStorage.getItem('listMusics');
+            const moneyAsync = await AsyncStorage.getItem('money');
+            const starsAsync = await AsyncStorage.getItem('stars');
+            const selectedCharacterAsync = await AsyncStorage.getItem('selectedCharacter');
+            const selectedMusicBattleAsync = await AsyncStorage.getItem('selectedMusicBattle');
+            if(selectedCharacterAsync !== null)
+                setSelectCharacter(parseInt(selectedCharacterAsync))
+            if(selectedMusicBattleAsync !== null)
+                setSelectMusic(parseInt(parseInt(selectedMusicBattleAsync)))
+            if(moneyAsync !== null)
+                setCuantityMoney(parseInt(moneyAsync))
+            if(starsAsync !== null)
+                setCuantityStars(parseInt(starsAsync))
+            if(listCharactersAsync !== null)
+                setCharacters(JSON.parse(listCharactersAsync));
+            else
+                setCharacters(listCharacters);
+            if(listMapsAsync !== null)
+                setMaps(JSON.parse(listMapsAsync));
+            else
+                setMaps(listMaps)
+            if(listMusicsAsync !== null)
+                setMusics(JSON.parse(listMusicsAsync))
+            else 
+                setMusics(listMusics)
+        }
+        loadPrincipalLevels();
+    }, []);
     const styleChangeAnimationBattle = (animation) => {
         return {
           transform: [
@@ -312,7 +365,7 @@ const LevelsViewGame = () => {
     };
     const animateTransition = (delta) => {
         if (
-            (delta === 1 && selectCharacter >= listCharacters.length - 1) ||
+            (delta === 1 && selectCharacter >= characters.length - 1) ||
             (delta === -1 && selectCharacter <= 0)
         ) return;
 
@@ -349,13 +402,14 @@ const LevelsViewGame = () => {
         borderColor: '#c48f31',  
         borderWidth: '5vw',
     }
-    const checkStatusPurchase = (purchase) => {
+    const checkStatusPurchase = async (purchase) => {
         let  continuePurchase = false;
           if (purchase.typeMoney === 1) {
             if(cuantityMoney < purchase.costPurchase)
                 setSecondDialog({ state: true, type: 1 });
             else{
                 setCuantityMoney(prev => prev - purchase.costPurchase);
+                await AsyncStorage.setItem('money',`${cuantityMoney - purchase.costPurchase}`);
                 continuePurchase = true
             }
           } else {
@@ -363,36 +417,38 @@ const LevelsViewGame = () => {
                 setSecondDialog({ state: true, type: 2 });
             else{
                 setCuantityStars(prev => prev - purchase.costPurchase);
+                await AsyncStorage.setItem('stars',`${cuantityStars - purchase.costPurchase}`);
                 continuePurchase = true
             }
           }
         if(continuePurchase){
             if (purchase.typePurchase === 1) {
-                setCharacters(prev => {
-                  const updated = [...prev];
-                  updated[purchase.indexPurchase] = {
-                    ...updated[purchase.indexPurchase],
+                const updatedCharacters = [...characters];
+                updatedCharacters[purchase.indexPurchase] = {
+                    ...updatedCharacters[purchase.indexPurchase],
                     costUnlock: 0,
                     isBlocking: false
-                  };
-                  return updated;
-                });
+                };
+                setCharacters(updatedCharacters);
+                let listCharactersNow = updatedCharacters;
+                await AsyncStorage.setItem('listCharacters',JSON.stringify(listCharactersNow));
               } else {
-                setMusics(prev => {
-                  const updated = [...prev];
-                  updated[purchase.indexPurchase] = {
-                    ...updated[purchase.indexPurchase],
+                const updatedMusics = [...musics];
+                updatedMusics[purchase.indexPurchase] = {
+                    ...updatedMusics[purchase.indexPurchase],
                     costUnlock: 0,
                     isMusicBlocks: false
-                  };
-                  return updated;
-                });
+                };
+                setMusics(updatedMusics);
+                let listMusicsNow = updatedMusics;
+                await AsyncStorage.setItem('listMusics', JSON.stringify(listMusicsNow));
               }
+
               setFirstDialog({state:false,type:0})
         }
       };      
     const onActiveMusic = async (music) => {
-        console.log(music)
+        const volumeMusic = await AsyncStorage.getItem('volumeMusic');
         const currentSound = musicBackgroundRef.current;
         if (currentSound === null) {
             const { sound } = await Audio.Sound.createAsync(
@@ -401,7 +457,10 @@ const LevelsViewGame = () => {
                 isLooping: true
                 }
             );
-            await sound.setVolumeAsync(1);
+            if(volumeMusic !== null)
+                await sound.setVolumeAsync(parseFloat(volumeMusic/100));
+            else
+                await sound.setVolumeAsync(1);
             await sound.playAsync();
             setMusicPlayingBackground(sound); 
         }
@@ -415,12 +474,16 @@ const LevelsViewGame = () => {
                 isLooping: true
                 }
             );
-            await sound.setVolumeAsync(1);
+            if(volumeMusic !== null)
+                await sound.setVolumeAsync(parseFloat(volumeMusic/100));
+            else
+                await sound.setVolumeAsync(1);
             await sound.playAsync();
             setMusicPlayingBackground(sound); 
         }
     };
     const onBackgroundMusic = async () =>{
+        const volumeMusic = await AsyncStorage.getItem('volumeMusic');
         const currentSound = musicBackgroundRef.current;
         if(currentSound !== null && selectPlayMusic != -1){
             await currentSound.stopAsync();
@@ -432,7 +495,10 @@ const LevelsViewGame = () => {
                 isLooping: true
                 }
             );
-            await sound.setVolumeAsync(1);
+            if(volumeMusic !== null)
+                await sound.setVolumeAsync(parseFloat(volumeMusic/100));
+            else
+                await sound.setVolumeAsync(1);
             await sound.playAsync();
             setMusicPlayingBackground(sound); 
             setSelectPlayMusic(-1);
@@ -555,7 +621,7 @@ const LevelsViewGame = () => {
                                                     </View>
                                                 </TouchableOpacity>
                                             )}
-                                            <Image source={source} style={{ height: '100%', width: '100%' }} />
+                                            <Image source={source} style={{ height: '100%', width: '60%', justifyContent:'center',marginLeft:'auto',marginRight:'auto' }} resizeMode='stretch' />
                                             {selectCharacter === index && (
                                                 <Text style={[styles.textApartHome, styles.characterName]}>
                                                     {nameCharacter}
@@ -641,7 +707,7 @@ const LevelsViewGame = () => {
                                                     {!isMusicBlocks&&(
                                                         <View style={{height:'100%',width:'100%',justifyContent:'center',zIndex:2}}>
                                                             <View style={{marginLeft:'auto',marginRight:'auto'}}>
-                                                                <IconButtonSvg  SvgChildIcon = {IconSelect} backgroundButton = {index === selectMusic?"#345108":"#6f0c0c"} borderRadiusButton={"50%"} colorIcon= {"white"} sizeIcon = {40} sizeButton = {25} animationOptions = {{styleChange: styleChangeAnimationBattle , functionAnimation:(a)=>{animationFunctionBattle(a);setSelectMusic(index)}}} />
+                                                                <IconButtonSvg  SvgChildIcon = {IconSelect} backgroundButton = {index === selectMusic?"#345108":"#6f0c0c"} borderRadiusButton={"50%"} colorIcon= {"white"} sizeIcon = {40} sizeButton = {25} animationOptions = {{styleChange: styleChangeAnimationBattle , functionAnimation:async (a)=>{animationFunctionBattle(a);setSelectMusic(index);if(!musics[index].isMusicBlocks)await AsyncStorage.setItem('selectedMusicBattle',`${index}`);}}} />
                                                             </View>
                                                         </View>
                                                     )}
